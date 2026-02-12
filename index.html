@@ -3,45 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos Distrileco</title>
+    <title>Pedidos Distrileco - Colombina</title>
     <style>
-        :root { --primary: #d32f2f; --secondary: #1976d2; --bg-blue: #e3f2fd; --success: #25d366; }
-        body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--bg-blue);
-            background-image: url('https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/distrileco-caucasia.PNG');
-            background-size: 100px; background-repeat: repeat; background-attachment: fixed; padding-bottom: 140px; 
+        :root { 
+            --primary: #d32f2f; 
+            --secondary: #1976d2; 
+            --bg-blue: #e3f2fd; 
+            --success: #25d366; 
         }
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(227, 242, 253, 0.92); z-index: -1; }
-        header { background: white; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; text-align: center; }
-        .logo-header img { height: 40px; margin: 0 10px; vertical-align: middle; }
-        .search-container { padding: 15px; max-width: 600px; margin: auto; }
-        #buscador { width: 100%; padding: 15px; border: 2px solid var(--secondary); border-radius: 30px; font-size: 16px; outline: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            background-color: var(--bg-blue);
+            background-image: url('https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/distrileco-caucasia.PNG');
+            background-size: 100px;
+            background-repeat: repeat;
+            background-attachment: fixed;
+            padding-bottom: 160px; 
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(227, 242, 253, 0.94); 
+            z-index: -1;
+        }
+
+        header { 
+            background: white; 
+            padding: 15px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            text-align: center;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .header-container img {
+            max-height: 60px;
+            width: auto;
+            object-fit: contain;
+        }
+
         .container { padding: 0 15px; max-width: 650px; margin: auto; }
-        .client-form, .product-card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 12px; border: 1px solid #ddd; }
-        .client-form h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--bg-blue); padding-bottom: 10px; }
-        .client-form input, .client-form select, .client-form textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
+        .search-container { padding: 20px 0; }
+        
+        #buscador { 
+            width: 100%; 
+            padding: 16px 25px; 
+            border: 2px solid var(--secondary); 
+            border-radius: 35px; 
+            font-size: 17px; 
+            outline: none; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+
+        .client-form h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--bg-blue); padding-bottom: 8px; }
+        
+        .client-form input, .client-form select, .client-form textarea { 
+            width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 10px; font-size: 16px; box-sizing: border-box;
+        }
+        
         .product-card { display: flex; justify-content: space-between; align-items: center; }
-        .product-info h4 { margin: 0; font-size: 0.85rem; color: #333; line-height: 1.2; }
-        .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; display: block; margin-top: 5px; }
-        .qty-control { display: flex; align-items: center; gap: 10px; }
-        .btn-qty { background: var(--secondary); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 20px; }
-        .footer-action { position: fixed; bottom: 0; width: 100%; background: white; padding: 20px 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); text-align: center; z-index: 1001; }
-        .btn-send { background: var(--success); color: white; border: none; padding: 18px; border-radius: 40px; font-weight: bold; width: 90%; max-width: 500px; cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(37,211,102,0.3); }
+        .product-info h4 { margin: 0; font-size: 0.9rem; color: #333; line-height: 1.3; }
+        .product-info .price { color: var(--primary); font-weight: bold; font-size: 1.15rem; display: block; margin-top: 5px; }
+        
+        .qty-control { display: flex; align-items: center; gap: 12px; }
+        .btn-qty { background: var(--secondary); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; }
+        .qty-val { font-weight: bold; min-width: 25px; text-align: center; font-size: 1.2rem; }
+        
+        .footer-action { 
+            position: fixed; bottom: 0; width: 100%; background: white; padding: 20px 0; 
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1); text-align: center; z-index: 1001; 
+        }
+
+        .btn-send { 
+            background: var(--success); color: white; border: none; padding: 18px; border-radius: 40px; 
+            font-weight: bold; width: 92%; max-width: 500px; cursor: pointer; font-size: 19px; box-shadow: 0 5px 15px rgba(37,211,102,0.4);
+        }
+
+        .branding { text-align: center; font-size: 0.8rem; color: #666; margin: 30px 0; padding-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/distrileco-caucasia.PNG" alt="Distrileco">
-    <img src="https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/colombina.PNG" alt="Colombina">
+    <div class="header-container">
+        <img src="https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/distrileco-caucasia.PNG" alt="Distrileco">
+        <img src="https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/colombina.PNG" alt="Colombina">
+    </div>
 </header>
 
-<div class="search-container">
-    <input type="text" id="buscador" placeholder="🔍 Buscar producto o código REF..." oninput="filtrar()">
-</div>
-
 <div class="container">
-    <div class="client-form">
+    <div class="search-container">
+        <input type="text" id="buscador" placeholder="🔍 Buscar producto o código REF..." oninput="filtrar()">
+    </div>
+
+    <div class="card client-form">
         <h3>📋 Datos del Cliente</h3>
         <input type="text" id="nombre" placeholder="Nombre completo / Razón Social *">
         <input type="text" id="direccion" placeholder="Dirección de entrega *">
@@ -53,16 +133,18 @@
         </select>
         <textarea id="observacion" rows="2" placeholder="Observaciones adicionales"></textarea>
     </div>
-    <div id="lista-productos"></div>
-    
-    <div style="text-align:center; color:#777; font-size:0.8rem; margin:20px 0;">
-        Distribuido por Distrileco | Caucasia<br>
-        <b>App desarrollada por Vibras Positivas © Derechos de Autor</b>
+
+    <div id="lista-productos">
+        </div>
+
+    <div class="branding">
+        Distribuido por <b>Distrileco</b> | Caucasia, Antioquia<br>
+        App desarrollada por <b>Vibras Positivas</b> © Derechos de Autor
     </div>
 </div>
 
 <div class="footer-action">
-    <div style="margin-bottom: 8px; font-weight: 800; font-size: 1.5rem;" id="gran-total">Total: $0</div>
+    <div style="margin-bottom: 10px; font-weight: 800; font-size: 1.6rem;" id="gran-total">Total: $0</div>
     <button class="btn-send" onclick="enviarPedido()">🚀 Enviar Pedido a WhatsApp</button>
 </div>
 
@@ -74,11 +156,18 @@
 
     function renderProductos() {
         const div = document.getElementById('lista-productos');
+        
+        // Verificación de seguridad si el archivo externo falló al cargar
+        if (typeof productos === 'undefined') {
+            div.innerHTML = "<div class='card' style='color:red; text-align:center;'>⚠️ Error: No se cargó la lista de productos. Verifica el archivo productos.js</div>";
+            return;
+        }
+
         div.innerHTML = productos.map(p => `
-            <div class="product-card" data-search="${p.nombre.toLowerCase()} ${p.codigo}">
+            <div class="card product-card" data-search="${p.nombre.toLowerCase()} ${p.codigo}">
                 <div class="product-info">
                     <h4>${p.nombre.trim()}</h4>
-                    <span style="font-size:0.75rem; color:#888;">REF: ${p.codigo} | ${p.med}</span>
+                    <span style="font-size:0.78rem; color:#777;">REF: ${p.codigo} | ${p.med}</span>
                     <span class="price">$${p.valor.toLocaleString()}</span>
                 </div>
                 <div class="qty-control">
@@ -121,9 +210,10 @@
             o: document.getElementById('observacion').value.trim() 
         };
 
-        if (!cli.n || !cli.d || !cli.c) return alert("Completa los datos del cliente (*)");
+        if (!cli.n || !cli.d || !cli.c) return alert("Por favor completa los datos obligatorios (*)");
 
-        const numPedido = `PED-${Date.now().toString().slice(-5)}`;
+        const fecha = new Date();
+        const numPedido = `PED-${fecha.getTime().toString().slice(-6)}`;
         let items = ""; let total = 0;
 
         for (let k in carrito) {
@@ -135,25 +225,28 @@
             }
         }
 
-        if (total === 0) return alert("El pedido está vacío.");
+        if (total === 0) return alert("Agrega al menos un producto al pedido.");
 
-        const msg = `🧾 *ORDEN DE PEDIDO N° ${numPedido}*\n` +
+        const msg = `🧾 *NUEVO PEDIDO - DISTRILECO*\n` +
                   `━━━━━━━━━━━━━━━━━━\n` +
+                  `📌 *ORDEN N°:* ${numPedido}\n` +
                   `👤 *CLIENTE:* ${cli.n}\n` +
                   `📍 *DIR:* ${cli.d}\n` +
                   `📞 *TEL:* ${cli.c}\n` +
                   `💰 *PAGO:* ${cli.p}\n` +
                   `📝 *OBS:* ${cli.o || 'Ninguna'}\n` +
                   `━━━━━━━━━━━━━━━━━━\n\n` +
-                  `📦 *DETALLE:*\n${items}` +
+                  `📦 *DETALLE DE PRODUCTOS:*\n\n${items}` +
                   `━━━━━━━━━━━━━━━━━━\n` +
-                  `💵 *TOTAL: $${total.toLocaleString()}*\n` +
+                  `💵 *TOTAL A PAGAR: $${total.toLocaleString()}*\n` +
                   `━━━━━━━━━━━━━━━━━━\n\n` +
-                  `_App por VIBRAS POSITIVAS_\n_© Derechos de Autor_`;
+                  `_App desarrollada por VIBRAS POSITIVAS_\n` +
+                  `_© Derechos de Autor_`;
 
         window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_DESTINO}&text=${encodeURIComponent(msg)}`);
     }
 
+    // Inicialización al cargar
     window.onload = renderProductos;
 </script>
 </body>
