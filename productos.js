@@ -238,7 +238,4 @@ const productos = [
     {"codigo": "20012", "med": "COMBO     ", "nombre": "8 GRISSLY POSTOBON 24*1*67GR PREC.ESPE  ", "valor": 12700},
     {"codigo": "20087", "med": "PREPA     ", "nombre": "5 GRISSLY COR+5ARO+5CLAS*72G PREC.ESP   ", "valor": 25400},
     {"codigo": "18963", "med": "PREPA     ", "nombre": "1 BON BOM FRESA + 1 BON INTEN + 1 SURTID", "valor": 27300}
-
-    // ... Agrega aquí el resto de la lista que tienes en tu imagen
-    {"codigo": "18963", "med": "PREPA", "nombre": "1 BON BOM FRESA + 1 BON INTEN + 1 SURTID", "valor": 27300}
 ];
