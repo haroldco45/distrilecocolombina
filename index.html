@@ -8,35 +8,34 @@
         :root { 
             --primary: #d32f2f; 
             --secondary: #1976d2; 
-            --bg-blue: #e3f2fd; /* Azul claro de fondo */
+            --bg-blue: #e3f2fd; 
             --success: #25d366; 
         }
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
-            /* Fondo con logo de Distrileco repetido */
             background-color: var(--bg-blue);
+            /* Fondo con logo Distrileco */
             background-image: url('https://raw.githubusercontent.com/haroldco45/distrilecocolombina/main/distrileco-caucasia.PNG');
-            background-size: 150px;
+            background-size: 120px;
             background-repeat: repeat;
             background-attachment: fixed;
             padding-bottom: 140px; 
             color: #333; 
         }
         
-        /* Capa para que el fondo no sature la vista */
         body::before {
             content: "";
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(227, 242, 253, 0.85); /* Tinte azul semitransparente */
+            background: rgba(227, 242, 253, 0.9); 
             z-index: -1;
         }
 
         header { 
             background: white; 
-            padding: 12px 20px; 
+            padding: 10px 20px; 
             box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
             position: sticky; 
             top: 0; 
@@ -51,40 +50,39 @@
             margin: 0 auto; 
         }
 
-        .logo-header img { height: 50px; width: auto; object-fit: contain; }
+        .logo-header img { height: 45px; width: auto; object-fit: contain; }
         
         .search-container { padding: 15px; max-width: 600px; margin: auto; }
         
         #buscador { 
-            width: 100%; padding: 14px 20px; border: 2px solid #1976d2; border-radius: 30px; 
+            width: 100%; padding: 14px 20px; border: 2px solid var(--secondary); border-radius: 30px; 
             font-size: 16px; outline: none; box-sizing: border-box; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         .container { padding: 0 15px; max-width: 650px; margin: auto; }
 
         .client-form, .product-card { 
-            background: rgba(255, 255, 255, 0.95); 
+            background: rgba(255, 255, 255, 0.96); 
             padding: 20px; 
             border-radius: 15px; 
-            margin-bottom: 15px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-            border: 1px solid rgba(25, 118, 210, 0.1);
+            margin-bottom: 12px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
 
-        .client-form h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid var(--bg-blue); padding-bottom: 10px; }
+        .client-form h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid #eee; padding-bottom: 8px; }
 
         .client-form input, .client-form select, .client-form textarea { 
-            width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; 
+            width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; 
         }
         
-        .product-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; }
-        .product-info h4 { margin: 0; font-size: 0.85rem; color: #222; text-transform: uppercase; }
-        .product-info .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; display: block; margin-top: 5px; }
+        .product-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; }
+        .product-info h4 { margin: 0; font-size: 0.85rem; color: #222; text-transform: uppercase; line-height: 1.2; }
+        .product-info .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; display: block; margin-top: 4px; }
         
         .qty-control { display: flex; align-items: center; gap: 10px; }
-        .btn-qty { background: var(--secondary); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 20px; }
-        .qty-val { font-weight: bold; min-width: 25px; text-align: center; font-size: 1.2rem; }
+        .btn-qty { background: var(--secondary); color: white; border: none; width: 34px; height: 34px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .qty-val { font-weight: bold; min-width: 20px; text-align: center; font-size: 1.1rem; }
         
         .footer-action { 
             position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 0; 
@@ -93,10 +91,10 @@
 
         .btn-send { 
             background: var(--success); color: white; border: none; padding: 16px; border-radius: 35px; 
-            font-weight: bold; width: 90%; max-width: 500px; cursor: pointer; font-size: 18px; 
+            font-weight: bold; width: 90%; max-width: 500px; cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(37,211,102,0.3);
         }
 
-        .branding { font-size: 0.8rem; color: #555; text-align: center; margin: 30px 0; font-weight: 500; }
+        .branding { font-size: 0.75rem; color: #666; text-align: center; margin: 25px 0; }
     </style>
 </head>
 <body>
@@ -109,7 +107,7 @@
 </header>
 
 <div class="search-container">
-    <input type="text" id="buscador" placeholder="🔍 Buscar por nombre o código..." onkeyup="filtrar()">
+    <input type="text" id="buscador" placeholder="🔍 Busca cualquier palabra o código..." oninput="filtrar()">
 </div>
 
 <div class="container">
@@ -129,7 +127,7 @@
     <div id="lista-productos"></div>
 
     <div class="branding">
-        Distribuido por Distrileco | Carrera 2 diag 25 No 2-25, Caucasia<br>
+        Distribuido por Distrileco | Caucasia, Antioquia<br>
         <b>App desarrollada por Vibras Positivas © 2026</b>
     </div>
 </div>
@@ -162,8 +160,14 @@
         {"codigo": "14584", "med": "UND", "nombre": "GALLETA MULTIC-FRU-ROJO 12*8*27GR 27021", "valor": 6530},
         {"codigo": "19130", "med": "UND", "nombre": "CRAKENA UVA Y MACADAMIA 20*6*27G 4984", "valor": 5825},
         {"codigo": "3975", "med": "BOLSA", "nombre": "CRAKEnAS SALTIN INDV 24BS*8UND 20536", "valor": 5700},
-        {"codigo": "19981", "med": "DISP", "nombre": "KICK CARAMEL CRISPY12PL*12UND*30GR 16253", "valor": 15740}
-        // ... (Puedes seguir añadiendo el resto de productos aquí)
+        {"codigo": "19981", "med": "DISP", "nombre": "KICK CARAMEL CRISPY12PL*12UND*30GR 16253", "valor": 15740},
+        {"codigo": "11704", "med": "DISP", "nombre": "CHOCOLATINA MUU LECHE 18*24*11G 16295", "valor": 22215},
+        {"codigo": "19346", "med": "DPK", "nombre": "MAYONESA CONST 12DIP*1*380GR 3278", "valor": 8750},
+        {"codigo": "19965", "med": "BOLSA", "nombre": "BRINKY MIXTERY 24BS*10*6 20818", "valor": 9400},
+        {"codigo": "19982", "med": "DISP", "nombre": "NUCITA CRISPY 16DP*18U*12G 16252", "valor": 10840},
+        {"codigo": "3835", "med": "UND", "nombre": "CHOCOBREAK MOnO STDO 18DP*20 803", "valor": 8800},
+        {"codigo": "6076", "med": "UND", "nombre": "BRIDGE MTCO AREQUIPE *24MTA 4493", "valor": 2270},
+        {"codigo": "6090", "med": "UND", "nombre": "BRIDGE MTCO CHOCOLATE *24MTA 4490", "valor": 2270}
     ];
 
     let carrito = {};
@@ -174,7 +178,7 @@
             <div class="product-card" data-search="${p.nombre.toLowerCase()} ${p.codigo}">
                 <div class="product-info">
                     <h4>${p.nombre.trim()}</h4>
-                    <span style="font-size:0.75rem; color:#666;">REF: ${p.codigo}</span>
+                    <span style="font-size:0.75rem; color:#888;">REF: ${p.codigo} | ${p.med}</span>
                     <span class="price">$${p.valor.toLocaleString()}</span>
                 </div>
                 <div class="qty-control">
@@ -186,10 +190,13 @@
         `).join('');
     }
 
+    // Buscador corregido: busca coincidencias parciales desde la primera letra
     function filtrar() {
-        const q = document.getElementById('buscador').value.toLowerCase();
-        document.querySelectorAll('.product-card').forEach(c => {
-            c.style.display = c.dataset.search.includes(q) ? 'flex' : 'none';
+        const q = document.getElementById('buscador').value.toLowerCase().trim();
+        document.querySelectorAll('.product-card').forEach(card => {
+            const data = card.dataset.search;
+            // Si el buscador está vacío o el texto coincide con cualquier parte del nombre/código
+            card.style.display = (q === "" || data.includes(q)) ? 'flex' : 'none';
         });
     }
 
@@ -210,30 +217,30 @@
 
     function enviarPedido() {
         const cli = { 
-            n: document.getElementById('nombre').value, 
-            d: document.getElementById('direccion').value, 
-            c: document.getElementById('celular').value, 
+            n: document.getElementById('nombre').value.trim(), 
+            d: document.getElementById('direccion').value.trim(), 
+            c: document.getElementById('celular').value.trim(), 
             p: document.getElementById('forma_pago').value,
-            o: document.getElementById('observacion').value 
+            o: document.getElementById('observacion').value.trim() 
         };
 
-        if (!cli.n || !cli.d || !cli.c) return alert("Completa los datos del cliente");
+        if (!cli.n || !cli.d || !cli.c) return alert("Por favor, completa los datos del cliente marcados con *");
 
         let items = ""; let total = 0;
         for (let k in carrito) {
             if (carrito[k] > 0) {
                 let p = productos.find(x => x.codigo === k);
-                items += `✅ *${p.nombre.trim()}*\nCant: ${carrito[k]} x $${p.valor} = $${p.valor * carrito[k]}\n\n`;
+                items += `✅ *${p.nombre.trim()}*\n   Cant: ${carrito[k]} x $${p.valor.toLocaleString()} = $${(p.valor * carrito[k]).toLocaleString()}\n\n`;
                 total += (p.valor * carrito[k]);
             }
         }
 
-        if (!items) return alert("Carrito vacío");
+        if (!items) return alert("Tu carrito está vacío. Agrega algún producto antes de enviar.");
 
         const msg = `*NUEVO PEDIDO - COLOMBINA*\n\n` +
-                  `👤 *Cliente:* ${cli.n}\n📍 *Dir:* ${cli.d}\n📞 *Tel:* ${cli.c}\n💰 *Pago:* ${cli.p}\n📝 *Obs:* ${cli.o}\n\n` +
-                  `📦 *Detalle:*\n${items}` +
-                  `*TOTAL: $${total.toLocaleString()}*`;
+                  `👤 *Cliente:* ${cli.n}\n📍 *Dir:* ${cli.d}\n📞 *Tel:* ${cli.c}\n💰 *Pago:* ${cli.p}\n📝 *Obs:* ${cli.o || 'Ninguna'}\n\n` +
+                  `📦 *Detalle del pedido:*\n${items}` +
+                  `*TOTAL A PAGAR: $${total.toLocaleString()}*`;
 
         window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_DESTINO}&text=${encodeURIComponent(msg)}`);
     }
