@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Colombina - Distrileco</title>
+    <style>
+        :root { --primary: #d32f2f; --secondary: #1976d2; --bg: #f4f7f6; --success: #25d366; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 140px; }
+        header { background: white; padding: 12px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
+        .logo-header { display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; }
+        .logo-header img { height: 48px; object-fit: contain; }
+        
+        /* Buscador Mejorado */
+        .search-container { padding: 15px; max-width: 600px; margin: auto; }
+        #buscador { 
+            width: 100%; padding: 14px 20px; border: 2px solid #ddd; border-radius: 30px; 
+            font-size: 16px; outline: none; box-sizing: border-box; transition: 0.3s;
+        }
+        #buscador:focus { border-color: var(--secondary); box-shadow: 0 0 8px rgba(25,118,210,0.2); }
+
+        .container { padding: 0 15px; max-width: 650px; margin: auto; }
+        .client-form { background: white; padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .client-form h3 { margin: 0 0 15px 0; color: var(--primary); font-size: 1.2rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+        .client-form input, .client-form select, .client-form textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        
+        .product-card { background: white; padding: 15px; margin-bottom: 12px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f0f0f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
+        .product-info h4 { margin: 0; font-size: 0.9rem; color: #333; text-transform: uppercase; line-height: 1.3; }
+        .product-info small { color: #7f8c8d; font-size: 0.8rem; display: block; margin-top: 5px; }
+        .product-info .price { color: var(--primary); font-weight: bold; font-size: 1.1rem; margin-top: 5px; display: block; }
+        
+        .qty-control { display: flex; align-items: center; gap: 12px; }
+        .btn-qty { background: #f0f0f0; border: 1px solid #ddd; width: 38px; height: 38px; border-radius: 50%; font-weight: bold; cursor: pointer; font-size: 20px; }
+        .qty-val { font-weight: bold; min-width: 25px; text-align: center; font-size: 18px; color: var(--secondary); }
+        
+        .footer-action { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); text-align: center; }
+        .total-box { margin-bottom: 8px; font-weight: 800; font-size: 1.3rem; color: #333; }
+        .btn-send { background: var(--success); color: white; border: none; padding: 16px; border-radius: 35px; font-weight: bold; width: 90%; max-width: 500px; cursor: pointer; font-size: 18px; box-shadow: 0 4px 10px rgba(37,211,102,0.3); }
+        .branding { font-size: 0.75rem; color: #aaa; text-align: center; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-header">
+        <img src="https://raw.githubusercontent.com/haroldco45/distrilecocaucasia/main/distrileco-caucasia.PNG" alt="Distrileco">
+        <img src="https://raw.githubusercontent.com/haroldco45/distrilecocaucasia/main/colombina.PNG" alt="Colombina">
+    </div>
+</header>
+
+<div class="search-container">
+    <input type="text" id="buscador" placeholder="🔍 Escribe nombre o código REF..." oninput="filtrar()">
+</div>
+
+<div class="container">
+    <div class="client-form">
+        <h3>📋 Datos del Cliente</h3>
+        <input type="text" id="nombre" placeholder="Nombre completo / Razón Social">
+        <input type="text" id="direccion" placeholder="Dirección de entrega">
+        <input type="tel" id="celular" placeholder="Teléfono de contacto">
+        <select id="forma_pago">
+            <option value="Contado">Contado / Efectivo</option>
+            <option value="Transferencia">Transferencia Bancaria</option>
+            <option value="Crédito">Crédito</option>
+        </select>
+        <textarea id="observacion" rows="2" placeholder="Observaciones adicionales"></textarea>
+    </div>
+
+    <div id="lista-productos"></div>
+
+    <div class="branding">
+        Distribuido por Distrileco | Carrera 2 diag 25 No 2-25, Caucasia<br>
+        <b>App desarrollada por Vibras Positivas © Derechos de Autor</b>
+    </div>
+</div>
+
+<div class="footer-action">
+    <div class="total-box" id="gran-total">Total: $0</div>
+    <button class="btn-send" onclick="enviarPedido()">🚀 Enviar Pedido a WhatsApp</button>
+</div>
+
+<script>
+    const WHATSAPP_DESTINO = "573117700431";
+
+    // LISTA COMPLETA 94 PRODUCTOS (INCLUYE 17101 Y OTROS FALTANTES)
+    const productos = [
+        {"codigo": "17029", "med": "BOLSA     ", "nombre": "TIPITIN UNICORNIO 15BS*50 8666          ", "valor": 4500},
+        {"codigo": "19168", "med": "BOLSA     ", "nombre": "GALLETA MUU TIPO LECHE 30BS*18 BONIF    ", "valor": 1},
+        {"codigo": "19497", "med": "TIRA      ", "nombre": "CAFE BUENDIA CLASICO 25TIR*6*10GR 6041  ", "valor": 8180},
+        {"codigo": "19807", "med": "BOLSA     ", "nombre": "BRIDGE XL CHOCOLATE 8DP*9*45.5G 20821   ", "valor": 13620},
+        {"codigo": "19808", "med": "DISP      ", "nombre": "PIAZZA X5 CHOCOLATE 8DP*8*31G 20710     ", "valor": 11850},
+        {"codigo": "19361", "med": "BOLSA     ", "nombre": "BRINKY LIMON 24BS*12*4  20517           ", "valor": 8030},
+        {"codigo": "19770", "med": "UND       ", "nombre": "CAFE BUENDIA DESCAFEINADO 12*170GR  6029", "valor": 35400},
+        {"codigo": "3992", "med": "UND       ", "nombre": "CAFE BUENDIA LIOFILIZADO 12*170GR  6015 ", "valor": 30760},
+        {"codigo": "19895", "med": "UND       ", "nombre": "CRAKENAS DIPZ ORIG 20BS*12*15G 20820    ", "valor": 3200},
+        {"codigo": "19531", "med": "UND       ", "nombre": "BRINKY PINTA LENGUA 24BS*10UN*6 20364   ", "valor": 9400},
+        {"codigo": "19954", "med": "DISP      ", "nombre": "MAYOBURGER CONST 6DISP*12*80GR 16478    ", "valor": 23190},
+        {"codigo": "19894", "med": "DISP      ", "nombre": "SPLOT CHICLE TATTO GAMERS*18DP*60 16388 ", "valor": 8250},
+        {"codigo": "19358", "med": "BOLSA     ", "nombre": "BRINKY VAINILLA 24BS*12*4   20505       ", "valor": 8030},
+        {"codigo": "19359", "med": "BOLSA     ", "nombre": "BRINKY FRESA 24BS*12*4   20506          ", "valor": 8030},
+        {"codigo": "19948", "med": "UND       ", "nombre": "GRISSLY BBB 12*1*80G 15990              ", "valor": 15350},
+        {"codigo": "14317", "med": "UND       ", "nombre": "CRAKEnAS FIBRA MIEL 24*10*30G  27465    ", "valor": 6220},
+        {"codigo": "14584", "med": "UND       ", "nombre": "GALLETA MULTIC-FRU-ROJO 12*8*27GR 27021 ", "valor": 6530},
+        {"codigo": "19130", "med": "UND       ", "nombre": "CRAKENA UVA Y MACADAMIA 20*6*27G 4984   ", "valor": 5825},
+        {"codigo": "3975", "med": "BOLSA     ", "nombre": "CRAKEnAS SALTIN INDV 24BS*8UND 20536    ", "valor": 5700},
+        {"codigo": "19981", "med": "DISP      ", "nombre": "KICK CARAMEL CRISPY12PL*12UND*30GR 16253", "valor": 15740},
+        {"codigo": "13457", "med": "UND       ", "nombre": "CAFE BUENDIA SABOR VAINILLA 24*50G 6008 ", "valor": 13200},
+        {"codigo": "11704", "med": "DISP      ", "nombre": "CHOCOLATINA MUU LECHE 18*24*11G 16295   ", "valor": 22215},
+        {"codigo": "19346", "med": "DPK       ", "nombre": "MAYONESA CONST 12DIP*1*380GR 3278       ", "valor": 8750},
+        {"codigo": "19965", "med": "BOLSA     ", "nombre": "BRINKY MIXTERY 24BS*10*6 20818          ", "valor": 9400},
+        {"codigo": "19982", "med": "DISP      ", "nombre": "NUCITA CRISPY 16DP*18U*12G 16252        ", "valor": 10840},
+        {"codigo": "3835", "med": "UND       ", "nombre": "CHOCOBREAK MOnO STDO 18DP*20  803       ", "valor": 8800},
+        {"codigo": "6076", "med": "UND       ", "nombre": "BRIDGE MTCO AREQUIPE *24MTA  4493       ", "valor": 2270},
+        {"codigo": "6090", "med": "UND       ", "nombre": "BRIDGE MTCO CHOCOLATE *24MTA  4490      ", "valor": 2270},
+        {"codigo": "19992", "med": "UND       ", "nombre": "PASTELES NAVIDAD 12PLE*8*15GR  20236    ", "valor": 7650},
+        {"codigo": "19993", "med": "UND       ", "nombre": "GALLETA FELIZ NAVIDAD MOD24*1*130G 20882", "valor": 3550},
+        {"codigo": "16749", "med": "UND       ", "nombre": "MAYONESA CONST 12*1000 3749             ", "valor": 18000},
+        {"codigo": "19198", "med": "DISP      ", "nombre": "LECHE COND COLOM 6DIS*12*90g  14848     ", "valor": 30560},
+        {"codigo": "3885", "med": "UND       ", "nombre": "SALSA CIRUELA CONST  24UND*200GR  3976  ", "valor": 5500},
+        {"codigo": "4010", "med": "BOLSA     ", "nombre": "CONFITE HALLOWEEN 50BS*100*3G 12187     ", "valor": 5530},
+        {"codigo": "19755", "med": "UND       ", "nombre": "GRISSLY GUSANI ACIDAS 18*18*12GR 15523  ", "valor": 7150},
+        {"codigo": "19984", "med": "BOLSA     ", "nombre": "COFFE DELIGHT BLANDO 36BS*50U 1230      ", "valor": 5250},
+        {"codigo": "20016", "med": "          ", "nombre": "CAFE BUENDIA LIOFILIZADO 6*320G 16827   ", "valor": 58800},
+        {"codigo": "19058", "med": "UND       ", "nombre": "SNOWMINT MINT KRASH 12*12*30.6G 13789-88", "valor": 9100},
+        {"codigo": "16619", "med": "UND       ", "nombre": "GALLETA COCADITAS 30*70GR 27617         ", "valor": 4820},
+        {"codigo": "19812", "med": "UND       ", "nombre": "GRISSLY AROS 24*50*5.4G 16468           ", "valor": 7300},
+        {"codigo": "16510", "med": "BOLSA     ", "nombre": "CHOCOBREAK MEGA BALL 24*12  12493       ", "valor": 11100},
+        {"codigo": "19059", "med": "BOLSA     ", "nombre": "TIPITIN SURTIDO 18BS*40 13885           ", "valor": 7380},
+        {"codigo": "19838", "med": "BOLSA     ", "nombre": "COFFE DELIG DURO CAPPUCCI 16BS*100 15551", "valor": 11615},
+        {"codigo": "19360", "med": "BOLSA     ", "nombre": "BRINKY CHOCOLATE 24BS*12*4   20507      ", "valor": 8030},
+        {"codigo": "19854", "med": "DISP      ", "nombre": "PIAZZA JIRAF FRESA SALVAJE12DP*24 20813 ", "valor": 10200},
+        {"codigo": "14939", "med": "DISP      ", "nombre": "SPLOT SANDIA ACID 24*50*4.5G 13995      ", "valor": 6900},
+        {"codigo": "19386", "med": "DISP      ", "nombre": "SALSA ROSADA CONST 6DISP*12*80GR 14862  ", "valor": 18050},
+        {"codigo": "19820", "med": "DISP      ", "nombre": "ATUN VAN EN ACEITE 12DISP*8*80G 16361   ", "valor": 25880},
+        {"codigo": "20037", "med": "UND       ", "nombre": "1 CRAKEÑA DIPZ ORIG 20BS*12*15G PREC.ESP", "valor": 3100},
+        {"codigo": "19104", "med": "UND       ", "nombre": "MERMELADA CONST MORA 72*80G 14857       ", "valor": 1810},
+        {"codigo": "19226", "med": "UND       ", "nombre": "MERMELADA CONST FRESA  72*80G 14856     ", "valor": 1810},
+        {"codigo": "3856", "med": "UND       ", "nombre": "MERMELADA CONSTAN MORA 24*200G 3664     ", "valor": 4970},
+        {"codigo": "3857", "med": "UND       ", "nombre": "MERMELADA CONSTA FRESA 24*200G 3665     ", "valor": 4970},
+        {"codigo": "13610", "med": "BOLSA     ", "nombre": "GALLETA CHOCO MUU  24*12  27107         ", "valor": 10350},
+        {"codigo": "15120", "med": "DISP      ", "nombre": "CHOCMELOS BESSOS 8*12*30G 3313          ", "valor": 19560},
+        {"codigo": "19983", "med": "BOLSA     ", "nombre": "COFFE DELIGHT DURO 36BS*50UN 176        ", "valor": 4570},
+        {"codigo": "3974", "med": "BOLSA     ", "nombre": "CRAKEnAS DORADITAS 24BS*8UND  2584      ", "valor": 5800},
+        {"codigo": "14270", "med": "UND       ", "nombre": "TIPITIN SICODELICA 30*25*9G   2096      ", "valor": 4700},
+        {"codigo": "16710", "med": "UND       ", "nombre": "SALSA TOMATE CONS 12*1000G 3748         ", "valor": 15850},
+        {"codigo": "18876", "med": "UND       ", "nombre": "MORDISQUETA RON CON PASAS  20*24   13967", "valor": 8420},
+        {"codigo": "18926", "med": "BOLSA     ", "nombre": "TIPITIN LECHE 18BS*50UND   13964        ", "valor": 6930},
+        {"codigo": "19434", "med": "BOLSA     ", "nombre": "TIPITIN SIRENITA 18BS*50UND NUEV  14774 ", "valor": 6930},
+        {"codigo": "19525", "med": "DISP      ", "nombre": "MOSTAZA CONSTANCIA  6DISP*12*80GR 15323 ", "valor": 20810},
+        {"codigo": "19357", "med": "BOLSA     ", "nombre": "XTIME BOLSA SURTIDA 2 12*200*3.2G 15193 ", "valor": 23750},
+        {"codigo": "19617", "med": "UND       ", "nombre": "MAYONESA CONST DPK  24*150GR 15399      ", "valor": 2250},
+        {"codigo": "9521", "med": "UND       ", "nombre": "PIAZZA JIRAFA AREQUIPE 12PL*24U 27283   ", "valor": 10200},
+        {"codigo": "12008", "med": "BOLSA     ", "nombre": "CREMA DE CHOCO MUU 20*12*10GR 6202      ", "valor": 5600},
+        {"codigo": "19667", "med": "BOLSA     ", "nombre": "CRAKEnAS CLUB INDV 24BS*10U*240G  20580 ", "valor": 6220},
+        {"codigo": "10418", "med": "UND       ", "nombre": "VINAGRETA CONST 24DP*1*200GR  6842      ", "valor": 3450},
+        {"codigo": "11653", "med": "UND       ", "nombre": "SPLOT ESPANTA OJOS  24*60  13994        ", "valor": 4800},
+        {"codigo": "18781", "med": "BOLSA     ", "nombre": "TIPITIN UNICORNIO 18BS*50   13963       ", "valor": 7170},
+        {"codigo": "18927", "med": "UND       ", "nombre": "SALSA TARTARA CONS  24*190     13774    ", "valor": 6450},
+        {"codigo": "19210", "med": "UND       ", "nombre": "MOSTANEZA CONST AJO 24DP*190GR  13777   ", "valor": 6550},
+        {"codigo": "3706", "med": "BOLSA     ", "nombre": "SNOW MINT 18BS*100UN  13968             ", "valor": 7900},
+        {"codigo": "4294", "med": "UND       ", "nombre": "VINAGRE CONSTAN BLANCO 24DP*230  3533   ", "valor": 1500},
+        {"codigo": "4829", "med": "UND       ", "nombre": "PIAZZA JIRAFA VAINILLA 12DP*24  27280   ", "valor": 10200},
+        {"codigo": "19898", "med": "DISP      ", "nombre": "KICK MANI 12PLEGA*12UND*35GR 16214      ", "valor": 15900},
+        {"codigo": "19998", "med": "UND       ", "nombre": "GRISSLY POSTOBON 24*1*67GR  16268       ", "valor": 1750},
+        {"codigo": "20047", "med": "UND       ", "nombre": "GRISSLY GUSANOS EXT110 16BS*1*275G 16760", "valor": 7650},
+        {"codigo": "20048", "med": "UND       ", "nombre": "GRISSLY AROS EXT55 24BS*55UN*5,4G 16761 ", "valor": 7470},
+        {"codigo": "20049", "med": "DISP      ", "nombre": "ATUN VAN EN ACEITE 32DP*3*80G 16658     ", "valor": 16400},
+        {"codigo": "14032", "med": "UND       ", "nombre": "CRAKEnAS SALTIN INTEGRAL*16*5TC 5214    ", "valor": 8660},
+        {"codigo": "14501", "med": "UND       ", "nombre": "MILLOWS SURTIDO 12*1*145G  4815         ", "valor": 4925},
+        {"codigo": "19831", "med": "UND       ", "nombre": "GRISSLY BOA BOMBONERA 8BM*25*25G 16470  ", "valor": 24700},
+        {"codigo": "19874", "med": "UND       ", "nombre": "CRAKEnA CLUB INTEGRAL 24*10 P.ESP 20583 ", "valor": 6410},
+        {"codigo": "3908", "med": "UND       ", "nombre": "SARDINA VAN EN TOMATE 24*425G  4122     ", "valor": 11100},
+        {"codigo": "3947", "med": "UND       ", "nombre": "CAPRI FRESA 24BS*24UND  20090           ", "valor": 6860},
+        {"codigo": "3950", "med": "DISP      ", "nombre": "PIAZZA JIRAF CHOCOLATE 12DP*24  27281   ", "valor": 10200},
+        {"codigo": "9290", "med": "BOLSA     ", "nombre": "MILLOWS FOGATA 12BS*145G  1459          ", "valor": 4920},
+        {"codigo": "16509", "med": "BOLSA     ", "nombre": "MENTAS LIMON Y EUCALIPTO 18*50*150G 7071", "valor": 8300},
+        {"codigo": "17971", "med": "UND       ", "nombre": "CAFE BUENDIA CLASICO 24*40*1.5GR 12712  ", "valor": 13560},
+        {"codigo": "18949", "med": "UND       ", "nombre": "GRISSLY SANDIA SOUR 24*1*72GR  13786    ", "valor": 1820},
+        {"codigo": "20073", "med": "UND       ", "nombre": "DULCE DURO ACIDOS 24BS*100*3.5G 16762   ", "valor": 6950},
+        {"codigo": "3662", "med": "BOLSA     ", "nombre": "COFFE DELIGHT BLANDO 16BS*100  1061     ", "valor": 12200},
+        {"codigo": "13718", "med": "UND       ", "nombre": "SALSA NEGRA CONST DPK 48*100   13874    ", "valor": 1630},
+        {"codigo": "14034", "med": "UND       ", "nombre": "TIPITIN PIRULITO LECHE 25*24*9G 2110    ", "valor": 3970},
+        {"codigo": "15008", "med": "DISP      ", "nombre": "PIAZZA JIRAF CHOCO-LECHE 12DP*24  27272 ", "valor": 10200},
+        {"codigo": "18518", "med": "UND       ", "nombre": "PIAZZA DELEITE CHOCOLATE 48*30GR 7039   ", "valor": 2490},
+        {"codigo": "19074", "med": "UND       ", "nombre": "SALSA BBQ CONST 24*190g  14853          ", "valor": 5500},
+        {"codigo": "19227", "med": "UND       ", "nombre": "PIAZZA COOKIES & CREAM *36BJ  20522     ", "valor": 3150},
+        {"codigo": "19435", "med": "DISP      ", "nombre": "XTIME CHICLE SANDIA 24*100 NUEV 15605   ", "valor": 13600},
+        {"codigo": "20000", "med": "UND       ", "nombre": "SALSA DE AJO CONST 24DISP*1*190G 12559  ", "valor": 6600},
+        {"codigo": "3920", "med": "DISP      ", "nombre": "SPLOT CHICLE TATTO *18DP*120UND  7760   ", "valor": 15640},
+        {"codigo": "4954", "med": "BOLSA     ", "nombre": "MILLOWS CORAZONES 12BS*145GR  2889      ", "valor": 5000},
+        {"codigo": "20074", "med": "BOLSA     ", "nombre": "BON BON BUM LIMONA/PINK 15BS*24UND 16939", "valor": 9800},
+        {"codigo": "3866", "med": "UND       ", "nombre": "AJI PICANTE CONSTAN 48*100GR  3132      ", "valor": 3730},
+        {"codigo": "18167", "med": "TIRA      ", "nombre": "PONKY PONKE VAINILLA 24TIR*8*33GR  20093", "valor": 9200},
+        {"codigo": "18587", "med": "DISP      ", "nombre": "NUCITA CHOCOLATINA 18DISP*12*20G  13413 ", "valor": 20900},
+        {"codigo": "19558", "med": "DISP      ", "nombre": "PIAZZA JIRAF CHOC-LEC12DP*P24LLE26 20378", "valor": 10200},
+        {"codigo": "3660", "med": "BOLSA     ", "nombre": "ARCOS MORA 24BS*100UND  5000            ", "valor": 6950},
+        {"codigo": "3981", "med": "TIR       ", "nombre": "PONKY NUCITA 18TIR*8UND  623            ", "valor": 12600},
+        {"codigo": "9802", "med": "UND       ", "nombre": "NUCITA BARQUILLO  12PL*12  2194         ", "valor": 10300},
+        {"codigo": "10683", "med": "UND       ", "nombre": "MILLOWS CORAZON 8BS*50 15779            ", "valor": 7920},
+        {"codigo": "11408", "med": "BOLSA     ", "nombre": "GALLETA MUU MANTEQUILLA 18*18  20025    ", "valor": 8400},
+        {"codigo": "13167", "med": "UND       ", "nombre": "SALSA PARA CARNE CONST  48*110 3287     ", "valor": 1950},
+        {"codigo": "1619", "med": "BOLSA     ", "nombre": "CONFITE FRUTICAS SURT 16DP*100  172     ", "valor": 10600},
+        {"codigo": "19922", "med": "UND       ", "nombre": "GRISSLY BBB STDO 24BS*1*45GR 16187      ", "valor": 1280},
+        {"codigo": "20081", "med": "BOLSA     ", "nombre": "MINIBUM SURTIDO TROPICAL 16BS*100  16817", "valor": 9600},
+        {"codigo": "3988", "med": "BOLSA     ", "nombre": "SNACKY CARAMELO 12DP*12BS*10G 1128      ", "valor": 4370},
+        {"codigo": "17268", "med": "BOLSA     ", "nombre": "BON BON BUM CEREZA 15BS*24UND 8909      ", "valor": 9800},
+        {"codigo": "19921", "med": "RISTRA    ", "nombre": "BON BON BUM TAJIN 12RT*12UND*17G 16559  ", "valor": 16500},
+        {"codigo": "20014", "med": "BOLSA     ", "nombre": "BON BON BUM MANZ/POSTOBON 15BS*24U 16710", "valor": 9800},
+        {"codigo": "2429", "med": "BOLSA     ", "nombre": "BON BON BUM FRESA INTEN 15*24UN  22429  ", "valor": 9800},
+        {"codigo": "3787", "med": "BOLSA     ", "nombre": "BON BON BUM SURTIDO 15BS*24UN  24257    ", "valor": 9800},
+        {"codigo": "4004", "med": "BOLSA     ", "nombre": "BON BON BUM FRESA 15BS*24UND  28118     ", "valor": 9800},
+        {"codigo": "10782", "med": "BOLSA     ", "nombre": "CAPRI VAINILLA 24BS*24UND 20091         ", "valor": 6860},
+        {"codigo": "11032", "med": "UND       ", "nombre": "CONFITE FRUTICAS MASTICA 16*100 5530    ", "valor": 10500},
+        {"codigo": "13487", "med": "BOLSA     ", "nombre": "BRINKY FRESA 24BS*10*6   26991          ", "valor": 10230},
+        {"codigo": "13536", "med": "UND       ", "nombre": "BRIDGE IND VAINILLA 24BS*10PAQ*6 27137  ", "valor": 6850},
+        {"codigo": "13537", "med": "UND       ", "nombre": "BRIDGE IND CHOCOLATE 24BS*10PAQ*6 27139 ", "valor": 6850},
+        {"codigo": "13538", "med": "UND       ", "nombre": "BRIDGE IND FRESA 24BS*10PAQ*6 27144     ", "valor": 6850},
+        {"codigo": "13539", "med": "UND       ", "nombre": "BRIDGE IND NARANJA 24BS*10PAQ*6 27145   ", "valor": 6850},
+        {"codigo": "13613", "med": "UND       ", "nombre": "BRIDGE IND RON C.PASAS 24BS*10PQ*6 27148", "valor": 6850},
+        {"codigo": "13903", "med": "BOLSA     ", "nombre": "BRINKY CHOCOLATE 24BS*10*6  26990       ", "valor": 10200},
+        {"codigo": "13904", "med": "BOLSA     ", "nombre": "BRINKY VAINILLA  24BS*10*6   26993      ", "valor": 10230},
+        {"codigo": "14853", "med": "UND       ", "nombre": "CHOCOBREAK COOKIES 18*30*5G 692         ", "valor": 9400},
+        {"codigo": "14879", "med": "UND       ", "nombre": "BRIDGE IND LIMON 24BS*10PAQ*6 27635     ", "valor": 6850},
+        {"codigo": "15528", "med": "DISP      ", "nombre": "CHOCODISK DANDY 12PL*18*16G  5251       ", "valor": 16700},
+        {"codigo": "18260", "med": "BOLSA     ", "nombre": "CONFITE FRUTIC CARAM BLAN 16*100 12588  ", "valor": 7800},
+        {"codigo": "18863", "med": "UND       ", "nombre": "CHUPETA MAX COCO  20*24*14GR   8224     ", "valor": 9100},
+        {"codigo": "18864", "med": "UND       ", "nombre": "CARAMELO MAX COCO  16BS*100U 15189      ", "valor": 12300},
+        {"codigo": "19106", "med": "BOLSA     ", "nombre": "BRINKY LIMON 24BS*10*6 26992            ", "valor": 10230},
+        {"codigo": "20085", "med": "BOLSA     ", "nombre": "GALLETA MUU MANTEQ EXTCONT 18*18  20885 ", "valor": 7920},
+        {"codigo": "2425", "med": "BOLSA     ", "nombre": "COFFE DELIGHT DURO 18BS*100UN 177       ", "valor": 9200},
+        {"codigo": "3690", "med": "BOLSA     ", "nombre": "CONFITE FRUTICAS LOVE 16*100  972       ", "valor": 10500},
+        {"codigo": "3796", "med": "BOLSA     ", "nombre": "CHOCOBREAK BALL 18BS*50UN  662          ", "valor": 7700},
+        {"codigo": "3800", "med": "DISP      ", "nombre": "CHOCOBREAK COOKIES 12PL*70  410         ", "valor": 21850},
+        {"codigo": "3940", "med": "DISP      ", "nombre": "GALLETA MAX COCO WAFER 12DP*10UND 4694  ", "valor": 15330},
+        {"codigo": "3964", "med": "BOLSA     ", "nombre": "GALLETA MUU TIPO LECHE 30BS*18 27692    ", "valor": 4980},
+        {"codigo": "9784", "med": "UND       ", "nombre": "BRIDGE IND AREQUIPE 24BS*10PAQ*6  27142 ", "valor": 6850},
+        {"codigo": "11192", "med": "UND       ", "nombre": "MILLOWS INDIVID CREAM 8BS*50UND 15780   ", "valor": 7920},
+        {"codigo": "17143", "med": "BOLSA     ", "nombre": "MILLOWS UNICORNIO 8*50 15777            ", "valor": 7920},
+        {"codigo": "17793", "med": "UND       ", "nombre": "MILLOWS MARGARITA SNACK  30*1*35GR 12445", "valor": 1460},
+        {"codigo": "17858", "med": "UND       ", "nombre": "MILLOWS BLANCO SNACK 30BS*1*35GR  12444 ", "valor": 1460},
+        {"codigo": "18092", "med": "UND       ", "nombre": "GRISSLY CLASICA BOMBO 8*270UND   12796  ", "valor": 20970},
+        {"codigo": "18099", "med": "BOLSA     ", "nombre": "GRISSLY CLASICA 28BS*400GR  12798       ", "valor": 7300},
+        {"codigo": "18684", "med": "BOLSA     ", "nombre": "MAYONESA CONST BOLSA 4UN*3800G 14717    ", "valor": 51430},
+        {"codigo": "18950", "med": "UND       ", "nombre": "GRISSLY SOUR  24*1*72GR   14129         ", "valor": 1820},
+        {"codigo": "19042", "med": "BOLSA     ", "nombre": "KICK CHUPETA MASTICABLE 20BS*12UND 14726", "valor": 7570},
+        {"codigo": "19054", "med": "UND       ", "nombre": "MILLOWS FRESA CON CREMA 30*1*35GR 14125 ", "valor": 1460},
+        {"codigo": "19103", "med": "DISP      ", "nombre": "MAYONESA CONST 6DISP*12*80GR 14854      ", "valor": 15900},
+        {"codigo": "19173", "med": "UND       ", "nombre": "GRISSLY 100% COLAGENO 24*1*63G 14118    ", "valor": 3150},
+        {"codigo": "19410", "med": "UND       ", "nombre": "GRISSLY TIBURON 24*1*40GR NUEV 15526    ", "valor": 1300},
+        {"codigo": "19411", "med": "UND       ", "nombre": "GRISSLY BON BON BUM 24BS*1*45GR 15539   ", "valor": 1300},
+        {"codigo": "19422", "med": "UND       ", "nombre": "GRISSLY HUELLITA 24*1*40GR NUEV 15525   ", "valor": 1300},
+        {"codigo": "19436", "med": "UND       ", "nombre": "GRISSLY CLASICA 24*1*72GR NUEV 15529    ", "valor": 1820},
+        {"codigo": "19437", "med": "UND       ", "nombre": "GRISSLY AROS 24*1*72GR 16467            ", "valor": 1820},
+        {"codigo": "19438", "med": "UND       ", "nombre": "GRISSLY OSOS 24*1*72GR NUEV 15534       ", "valor": 1820},
+        {"codigo": "19453", "med": "UND       ", "nombre": "GRISSLY DELFIN 24*1*73GR NUEV 15532     ", "valor": 1820},
+        {"codigo": "19457", "med": "UND       ", "nombre": "GRISSLY CORAZON 24*1*70GR NUEV 15530    ", "valor": 1820},
+        {"codigo": "19475", "med": "UND       ", "nombre": "GRISSLY MARINO 24*1*70G  NUEVO 15533    ", "valor": 1820},
+        {"codigo": "19530", "med": "UND       ", "nombre": "GRISSLY GAMERS 24*1*40GR NUEV 15528     ", "valor": 1300},
+        {"codigo": "19752", "med": "BOLSA     ", "nombre": "MINIBUM SURTIDO/ASSORT 16*100 16077     ", "valor": 9600},
+        {"codigo": "19784", "med": "UND       ", "nombre": "MILLOWS LOONEY TUNES 8BS*50*4.5G 15569  ", "valor": 7920},
+        {"codigo": "19811", "med": "UND       ", "nombre": "GRISSLY SPLASH  8*1*100*4.8G 16472      ", "valor": 16100},
+        {"codigo": "19818", "med": "UND       ", "nombre": "GRISSLY SPLASH 24*1*72GR 16473          ", "valor": 1820},
+        {"codigo": "19839", "med": "UND       ", "nombre": "GRISSLY TOM Y JERRY 24*1*70G  16186     ", "valor": 1820},
+        {"codigo": "19841", "med": "UND       ", "nombre": "GRISSLY GUSANOS BOMBO 8*200U*500G 16543 ", "valor": 16250},
+        {"codigo": "20039", "med": "UND       ", "nombre": "GRISSLY SANDIA 24*1*70GR  15535         ", "valor": 1820},
+        {"codigo": "2427", "med": "BOLSA     ", "nombre": "MENTA HELADA 18BOL*100UND  148          ", "valor": 7700},
+        {"codigo": "2644", "med": "BOLSA     ", "nombre": "MAX COMBI 16*100UND 12144               ", "valor": 7900},
+        {"codigo": "3696", "med": "BOLSA     ", "nombre": "MENTA HELADA SURTIDA 18BS*100UN  12936  ", "valor": 7700},
+        {"codigo": "4183", "med": "UND       ", "nombre": "MILLOWS CILIN BLANCO 12UN*145G  3471    ", "valor": 5000},
+        {"codigo": "9300", "med": "BOLSA     ", "nombre": "MILLOWS OSO 8BS*50  15778               ", "valor": 7920},
+        {"codigo": "9892", "med": "RIST      ", "nombre": "LECHE COND COLOMB  16RIST*15*25GR  6806 ", "valor": 10400},
+        {"codigo": "11158", "med": "TIRA      ", "nombre": "SNACKY CARAMELO 3TIRAS*12UNID*50g  1242 ", "valor": 14600},
+        {"codigo": "11318", "med": "UND       ", "nombre": "SPLOT ACIDO EN LINEA X 5 (18DP*24) 13137", "valor": 9150},
+        {"codigo": "11567", "med": "UND       ", "nombre": "PIAZZA JIR CREM NUCITA 12*12UND 7191    ", "valor": 7950},
+        {"codigo": "13115", "med": "UND       ", "nombre": "SARDINA VAN EN TOMATE 24*225G 4408      ", "valor": 7150},
+        {"codigo": "13769", "med": "BOLSA     ", "nombre": "SNACKY SALADITO 1*36*40G 797            ", "valor": 1050},
+        {"codigo": "14046", "med": "UND       ", "nombre": "TIPITIN PIRULITO SURTIDO 25*24 2098     ", "valor": 3970},
+        {"codigo": "14146", "med": "DISP      ", "nombre": "XTIME PASTILLA CANELA 24*100   15604    ", "valor": 13600},
+        {"codigo": "14773", "med": "BOLSA     ", "nombre": "XTIME BOLSA SURTIDA 12*200*3.2G  3164   ", "valor": 25350},
+        {"codigo": "17028", "med": "UND       ", "nombre": "SALSA TOMATE CONS 12*400GR 3275         ", "valor": 8200},
+        {"codigo": "18806", "med": "UND       ", "nombre": "SALSA SOYA COSTANCIA 48*100ML    13873  ", "valor": 2020},
+        {"codigo": "18958", "med": "UND       ", "nombre": "MORDISQUETA COOK&CREAM 20*24UND   13727 ", "valor": 9100},
+        {"codigo": "19118", "med": "DISP      ", "nombre": "SALSA TOM CONS 6DIP*12*80GR 14863       ", "valor": 15900},
+        {"codigo": "19166", "med": "UND       ", "nombre": "XTIME MENTA SURTIDAS 18*100*3.1G 13708  ", "valor": 8070},
+        {"codigo": "19370", "med": "DISP      ", "nombre": "SALSA BBQ CONST 6DISP*12*80GR 15322     ", "valor": 21300},
+        {"codigo": "19557", "med": "DISP      ", "nombre": "PIAZZA JIRAF CHOCOLAT12DP*P24LLE26 20380", "valor": 10200},
+        {"codigo": "19560", "med": "DISP      ", "nombre": "PIAZZA JIRAF VAINILL 12DP*P24LLE26 20375", "valor": 10200},
+        {"codigo": "19578", "med": "BOLSA     ", "nombre": "NUCITA MASTICABLE X 18B*50UN  12581     ", "valor": 6150},
+        {"codigo": "19586", "med": "UND       ", "nombre": "SALSA TOMATE CONST ST 24*150GR  15400   ", "valor": 2300},
+        {"codigo": "19999", "med": "BOLSA     ", "nombre": "SPLOT CHICLE BOLA 16*100*3G 16498       ", "valor": 8360},
+        {"codigo": "20078", "med": "UND       ", "nombre": "PIAZZA JIRAF AREQUI 12DP*P24LLE26 20379 ", "valor": 10200},
+        {"codigo": "20086", "med": "DISP      ", "nombre": "PIAZZA JIRAF BBB ROJO 12DP*24  20899    ", "valor": 10200},
+        {"codigo": "3750", "med": "BOLSA     ", "nombre": "TIPITIN CORAZON 30BS*25UND  2095        ", "valor": 4900},
+        {"codigo": "3754", "med": "BOLSA     ", "nombre": "TIPITIN SALVAJE 18BS*50UND   13965      ", "valor": 7300},
+        {"codigo": "3807", "med": "DISP      ", "nombre": "NUCITA CALIENTE 16DP*18UND  2191        ", "valor": 11100},
+        {"codigo": "3886", "med": "UND       ", "nombre": "SALSA PInA CONST  24*200GR  3977        ", "valor": 5480},
+        {"codigo": "3888", "med": "UND       ", "nombre": "VINAGRE CONSTANCIA BLANCO 24*500ML 8309 ", "valor": 3820},
+        {"codigo": "3906", "med": "UND       ", "nombre": "SARDINA VAN EN ACEITE 24*425GR  4127    ", "valor": 12500},
+        {"codigo": "3942", "med": "BOLSA     ", "nombre": "WAFER NUCITA  24BS*8UND  539            ", "valor": 5120},
+        {"codigo": "3943", "med": "BOLSA     ", "nombre": "QUIMBAYAS 18BS*18UND  1429              ", "valor": 11850},
+        {"codigo": "3951", "med": "UND       ", "nombre": "PIAZZA VAINILLA *36BJ  2641             ", "valor": 3150},
+        {"codigo": "3952", "med": "UND       ", "nombre": "PIAZZA CHOCOLATE *36BJ  2643            ", "valor": 3150},
+        {"codigo": "3955", "med": "UND       ", "nombre": "PIAZZA FRESA *36BJ  2644                ", "valor": 3150},
+        {"codigo": "4593", "med": "UND       ", "nombre": "PIAZZA JIRAFA MALTE/FRESA12DP*24  27275 ", "valor": 10200},
+        {"codigo": "4951", "med": "BOLSA     ", "nombre": "MILLOWS MINI 5BS*30  3072               ", "valor": 21900},
+        {"codigo": "7078", "med": "UND       ", "nombre": "PIAZZA AREQUIPE *36BJ  4545             ", "valor": 3150},
+        {"codigo": "19955", "med": "UND       ", "nombre": "ATUN VAN LOMITO EN ACEITE 48*160G 15693 ", "valor": 7550},
+        {"codigo": "19971", "med": "UND       ", "nombre": "ATUN VAN LOMITO EN AGUA 48*160G 15692   ", "valor": 7550},
+        {"codigo": "11938", "med": "UND       ", "nombre": "ACEITE DE OLIVA EXTR VIRGEN 48*250 26100", "valor": 23740},
+        {"codigo": "3654", "med": "BOLSA     ", "nombre": "ARCOS ANISADA 24BS*100UND  1681         ", "valor": 6950},
+        {"codigo": "3658", "med": "BOLSA     ", "nombre": "ARCOS BANANA EXTRA 24BS*100  1683       ", "valor": 6950},
+        {"codigo": "3818", "med": "BOLSA     ", "nombre": "AZUCAR PULVERIZADA 18BOLS*500GR   630   ", "valor": 3960},
+        {"codigo": "17227", "med": "UND       ", "nombre": "1 MILLOWS CREAM 8BS*50 UND  PRECIO ESP. ", "valor": 7500},
+        {"codigo": "19192", "med": "PREPA     ", "nombre": "1 SALSA TOM CONST 6DISP*12*80GR P.ESP   ", "valor": 14800},
+        {"codigo": "19221", "med": "PREPA     ", "nombre": "2 QUIMBAYA BRIDGE 18BS*18 P.ESP         ", "valor": 21600},
+        {"codigo": "19391", "med": "PREPA     ", "nombre": "2 GALLETA MUU TIPO LECHE 30BS*18 P.ESP  ", "valor": 9200},
+        {"codigo": "19430", "med": "PREPA     ", "nombre": "1 SPLOT ACI LIN 18*24+1SPLOT BOLA 16*100", "valor": 16200},
+        {"codigo": "19566", "med": "PREPA     ", "nombre": "1 BRINKY CHOCO+1 PINT.LENG+1 LIMON*10 P.", "valor": 26200},
+        {"codigo": "19700", "med": "PREPA     ", "nombre": "1 NUCITA CALIENTE 16DP*18UND P.ESP      ", "valor": 10300},
+        {"codigo": "19704", "med": "PREPA     ", "nombre": "2  CRAKEnAS CLUB INDV 24BS*10  PRE.ESPE ", "valor": 11600},
+        {"codigo": "19753", "med": "PREPA     ", "nombre": "1 MINIBUM SURTIDO/ASSORT 16*100 P.ESP   ", "valor": 8500},
+        {"codigo": "20012", "med": "COMBO     ", "nombre": "8 GRISSLY POSTOBON 24*1*67GR PREC.ESPE  ", "valor": 12700},
+        {"codigo": "20087", "med": "PREPA     ", "nombre": "5 GRISSLY COR+5ARO+5CLAS*72G PREC.ESP   ", "valor": 25400},
+        {"codigo": "18963", "med": "PREPA     ", "nombre": "1 BON BOM FRESA + 1 BON INTEN + 1 SURTID", "valor": 27300}
+
+    ];
+
+    let carrito = {};
+
+    function renderProductos() {
+        const div = document.getElementById('lista-productos');
+        div.innerHTML = productos.map(p => `
+            <div class="product-card" data-nombre="${p.nombre.toLowerCase()}" data-codigo="${p.codigo}">
+                <div class="product-info">
+                    <h4>${p.nombre}</h4>
+                    <span class="details">REF: ${p.codigo} | Med: ${p.med}</span>
+                    <span class="price">$${p.valor.toLocaleString()}</span>
+                </div>
+                <div class="qty-control">
+                    <button class="btn-qty" onclick="act('${p.codigo}', -1)">-</button>
+                    <span class="qty-val" id="q-${p.codigo}">0</span>
+                    <button class="btn-qty" onclick="act('${p.codigo}', 1)">+</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // BUSCADOR CORREGIDO: Filtra por nombre y por código REF
+    function filtrar() {
+        const query = document.getElementById('buscador').value.toLowerCase();
+        const cards = document.querySelectorAll('.product-card');
+        cards.forEach(card => {
+            const nombre = card.dataset.nombre;
+            const codigo = card.dataset.codigo;
+            if (nombre.includes(query) || codigo.includes(query)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function act(id, v) {
+        carrito[id] = Math.max(0, (carrito[id] || 0) + v);
+        document.getElementById(`q-${id}`).innerText = carrito[id];
+        actualizarTotal();
+    }
+
+    function actualizarTotal() {
+        let total = 0;
+        for (let k in carrito) {
+            let p = productos.find(x => x.codigo === k);
+            if(p) total += (p.valor * carrito[k]);
+        }
+        document.getElementById('gran-total').innerText = `Total: $${total.toLocaleString()}`;
+    }
+
+    function enviarPedido() {
+        const cli = { n: document.getElementById('nombre').value, d: document.getElementById('direccion').value, c: document.getElementById('celular').value, p: document.getElementById('forma_pago').value, o: document.getElementById('observacion').value };
+        if (!cli.n || !cli.d || !cli.c) return alert("Por favor complete los datos obligatorios del cliente");
+
+        let items = ""; let total = 0;
+        for (let k in carrito) {
+            if (carrito[k] > 0) {
+                let p = productos.find(x => x.codigo === k);
+                let sub = p.valor * carrito[k];
+                items += `✅ [REF: ${p.codigo}] ${p.nombre}\n   Cant: ${carrito[k]} x $${p.valor.toLocaleString()} = $${sub.toLocaleString()}\n\n`;
+                total += sub;
+            }
+        }
+        if (!items) return alert("Debe agregar al menos un producto");
+
+        const msg = `*PEDIDO COLOMBINA - DISTRILECO*\n\n` +
+                  `*CLIENTE:* ${cli.n}\n` +
+                  `*DIRECCIÓN:* ${cli.d}\n` +
+                  `*CELULAR:* ${cli.c}\n` +
+                  `*FORMA DE PAGO:* ${cli.p}\n` +
+                  `*OBS:* ${cli.o}\n\n` +
+                  `*DETALLE DEL PEDIDO:*\n${items}` +
+                  `*TOTAL A PAGAR: $${total.toLocaleString()}*\n\n` +
+                  `_App desarrollada por vibras positivas derechos de autor_`;
+
+        window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_DESTINO}&text=${encodeURIComponent(msg)}`);
+    }
+
+    renderProductos();
+</script>
+</body>
+</html>
